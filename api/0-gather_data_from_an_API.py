@@ -5,9 +5,9 @@ This module fetches an employee's TODO list progress from the
 REST API at https://jsonplaceholder.typicode.com and prints it
 in a specific format to standard output.
 """
+import json
 import sys
-
-import requests
+import urllib.request
 
 
 def get_employee_todo_progress(employee_id):
@@ -18,15 +18,14 @@ def get_employee_todo_progress(employee_id):
     """
     base_url = "https://jsonplaceholder.typicode.com"
 
-    user_response = requests.get("{}/users/{}".format(base_url, employee_id))
-    user = user_response.json()
+    with urllib.request.urlopen(
+            "{}/users/{}".format(base_url, employee_id)) as response:
+        user = json.loads(response.read().decode("utf-8"))
     employee_name = user.get("name")
 
-    todos_response = requests.get(
-        "{}/todos".format(base_url),
-        params={"userId": employee_id}
-    )
-    todos = todos_response.json()
+    with urllib.request.urlopen(
+            "{}/todos?userId={}".format(base_url, employee_id)) as response:
+        todos = json.loads(response.read().decode("utf-8"))
 
     done_tasks = [task for task in todos if task.get("completed") is True]
     total_tasks = len(todos)
