@@ -9,9 +9,6 @@ import requests
 import json
 import sys
 
-
-
-
 def export_employee_todos_to_json(employee_id):
     """Export all tasks of a given employee to a JSON file.
 
