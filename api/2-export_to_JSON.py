@@ -5,10 +5,9 @@ This module fetches an employee's TODO list data from the
 REST API at https://jsonplaceholder.typicode.com and exports
 all of that employee's tasks to a JSON file named USER_ID.json.
 """
-import requests
-import sys
-
 import json
+import sys
+import urllib.request
 
 
 def export_employee_todos_to_json(employee_id):
@@ -19,15 +18,14 @@ def export_employee_todos_to_json(employee_id):
     """
     base_url = "https://jsonplaceholder.typicode.com"
 
-    user_response = requests.get("{}/users/{}".format(base_url, employee_id))
-    user = user_response.json()
+    with urllib.request.urlopen(
+            "{}/users/{}".format(base_url, employee_id)) as response:
+        user = json.loads(response.read().decode("utf-8"))
     username = user.get("username")
 
-    todos_response = requests.get(
-        "{}/todos".format(base_url),
-        params={"userId": employee_id}
-    )
-    todos = todos_response.json()
+    with urllib.request.urlopen(
+            "{}/todos?userId={}".format(base_url, employee_id)) as response:
+        todos = json.loads(response.read().decode("utf-8"))
 
     tasks = [
         {
