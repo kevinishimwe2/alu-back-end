@@ -6,9 +6,9 @@ REST API at https://jsonplaceholder.typicode.com and exports
 all of that employee's tasks to a CSV file named USER_ID.csv.
 """
 import csv
+import json
 import sys
-
-import requests
+import urllib.request
 
 
 def export_employee_todos_to_csv(employee_id):
@@ -19,15 +19,14 @@ def export_employee_todos_to_csv(employee_id):
     """
     base_url = "https://jsonplaceholder.typicode.com"
 
-    user_response = requests.get("{}/users/{}".format(base_url, employee_id))
-    user = user_response.json()
+    with urllib.request.urlopen(
+            "{}/users/{}".format(base_url, employee_id)) as response:
+        user = json.loads(response.read().decode("utf-8"))
     username = user.get("username")
 
-    todos_response = requests.get(
-        "{}/todos".format(base_url),
-        params={"userId": employee_id}
-    )
-    todos = todos_response.json()
+    with urllib.request.urlopen(
+            "{}/todos?userId={}".format(base_url, employee_id)) as response:
+        todos = json.loads(response.read().decode("utf-8"))
 
     filename = "{}.csv".format(employee_id)
     with open(filename, "w", newline="") as csv_file:
